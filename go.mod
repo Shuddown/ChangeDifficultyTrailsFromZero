@@ -1,4 +1,4 @@
-module github.com/Shuddown/CRC-Checksum
+module github.com/Shuddown/ChangeDifficultyTrailsFromZero
 
 go 1.25.5
 
