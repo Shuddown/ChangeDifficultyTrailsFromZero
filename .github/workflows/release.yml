@@ -1,0 +1,65 @@
+name: Build Portable Binaries
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: Build All Binaries
+    runs-on: macos-latest # Mac runner is still best for the Apple stitching part
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      # --- LINUX ---
+      - name: Build Linux x86_64
+        run: |
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o dist/myapp-linux-amd64
+
+      # --- WINDOWS ---
+      - name: Build Windows x86_64 (Standard)
+        run: |
+          CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o dist/myapp-windows-amd64.exe
+
+      - name: Build Windows ARM64 (Surface/Snapdragon)
+        run: |
+          CGO_ENABLED=0 GOOS=windows GOARCH=arm64 go build -o dist/myapp-windows-arm64.exe
+
+      # --- MACOS ---
+      - name: Build macOS Intel
+        run: |
+          CGO_ENABLED=1 GOOS=darwin GOARCH=amd64 \
+          CGO_CFLAGS="-mmacosx-version-min=11.0" \
+          CGO_LDFLAGS="-mmacosx-version-min=11.0" \
+          go build -o dist/myapp-mac-amd64
+
+      - name: Build macOS Apple Silicon
+        run: |
+          CGO_ENABLED=1 GOOS=darwin GOARCH=arm64 \
+          CGO_CFLAGS="-mmacosx-version-min=11.0" \
+          CGO_LDFLAGS="-mmacosx-version-min=11.0" \
+          go build -o dist/myapp-mac-arm64
+
+      - name: Create macOS Universal Binary
+        run: |
+          lipo -create -output dist/myapp-macos-universal dist/myapp-mac-amd64 dist/myapp-mac-arm64
+          rm dist/myapp-mac-amd64 dist/myapp-mac-arm64
+
+      # --- RELEASE ---
+      - name: Upload Release Assets
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            dist/myapp-linux-amd64
+            dist/myapp-windows-amd64.exe
+            dist/myapp-windows-arm64.exe
+            dist/myapp-macos-universal
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
