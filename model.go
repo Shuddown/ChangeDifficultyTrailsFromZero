@@ -40,7 +40,7 @@ func (m model) Init() tea.Cmd {
 	return m.zstdCheck
 }
 
-func (m model) DecompressFile() tea.Msg {
+func (m model) decompressFile() tea.Msg {
 	data, err := os.ReadFile(m.zstdFilepath)
 	if err != nil {
 		return errMsg{err}
@@ -57,10 +57,10 @@ func (m model) validateSaveFile() tea.Msg {
 	if len(m.data) != SAVE_FILE_SIZE {
 		return errMsg{fmt.Errorf("The savefile's filesize (%d) doesn't match the expected file size (%d)", len(m.data), SAVE_FILE_SIZE)}
 	}
-	return m.UpdateDifficulty()
+	return m.updateDifficulty()
 }
 
-func (m model) UpdateDifficulty() tea.Msg {
+func (m model) updateDifficulty() tea.Msg {
 	difficultyByte := byte(m.selected)
 	m.data[DIFFICULTY_OFFSET] = difficultyByte
 	return m.updateChecksum()
@@ -93,7 +93,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case "enter", " ":
 			m.selected = m.choices[m.cursor]
-			return m, m.DecompressFile
+			return m, m.decompressFile
 		}
 
 	case errMsg:
