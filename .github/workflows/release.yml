@@ -36,21 +36,17 @@ jobs:
       - name: Build macOS Intel
         run: |
           CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 \
-          CGO_CFLAGS="-mmacosx-version-min=11.0" \
-          CGO_LDFLAGS="-mmacosx-version-min=11.0" \
           go build -ldflags "-s -w" -o dist/change-difficulty-mac-amd64
 
       - name: Build macOS Apple Silicon
         run: |
           CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 \
-          CGO_CFLAGS="-mmacosx-version-min=11.0" \
-          CGO_LDFLAGS="-mmacosx-version-min=11.0" \
           go build -ldflags "-s -w" -o dist/change-difficulty-mac-arm64
 
       - name: Create macOS Universal Binary
         run: |
           lipo -create -output dist/change-difficulty-macos-universal dist/change-difficulty-mac-amd64 dist/change-difficulty-mac-arm64
-          chmod +x change-difficulty-macos-universal
+          chmod +x dist/change-difficulty-macos-universal
           rm dist/change-difficulty-mac-amd64 dist/change-difficulty-mac-arm64
 
 
