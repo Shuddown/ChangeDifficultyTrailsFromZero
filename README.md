@@ -24,12 +24,3 @@ xattr -d com.apple.quarantine change-difficulty-macos-universal
 ```
 
 before using the binary
-```
-
-
-
-
-
-
-
-
