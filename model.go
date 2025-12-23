@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"os"
+	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -74,7 +75,7 @@ func (m model) updateChecksum() tea.Msg {
 
 func (m model) compressToFile() tea.Msg {
 	newSaveData := Compress(m.data)
-	os.WriteFile(SAVE_FILE_NAME, newSaveData, 0644)
+	os.WriteFile(m.zstdFilepath, newSaveData, 0644)
 	return SUCCESS
 }
 
@@ -121,7 +122,8 @@ func (m model) View() string {
 		return fmt.Sprintf("\nYou selected %s. Updating save file...\n\n", m.selected.String())
 	}
 
-	s := "What difficulty should your save be?\n\n"
+	var s strings.Builder
+	s.WriteString("What difficulty should your save be?\n\n")
 
 	for i, difficulty := range m.choices {
 		cursor := " "
@@ -129,11 +131,11 @@ func (m model) View() string {
 			cursor = ">"
 		}
 
-		s += fmt.Sprintf("%s %s\n", cursor, difficulty.String())
+		fmt.Fprintf(&s, "%s %s\n", cursor, difficulty.String())
 	}
 
-	s += "\nPress q to quit.\n"
-	return s
+	s.WriteString("\nPress q to quit.\n")
+	return s.String()
 
 }
 

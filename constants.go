@@ -26,7 +26,6 @@ const (
 	CHECKSUM_SIZE     = 8
 	SAVE_FILE_SIZE    = 155624
 	DIFFICULTY_OFFSET = 0x0001EF91
-	SAVE_FILE_NAME    = "savedata.dat"
 )
 
 type Difficulty byte
