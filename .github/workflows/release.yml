@@ -50,16 +50,24 @@ jobs:
       - name: Create macOS Universal Binary
         run: |
           lipo -create -output dist/change-difficulty-macos-universal dist/change-difficulty-mac-amd64 dist/change-difficulty-mac-arm64
+          chmod +x change-difficulty-macos-universal
           rm dist/change-difficulty-mac-amd64 dist/change-difficulty-mac-arm64
+
+
+      - name: Archive and Compress 
+        run: |
+          cd dist
+          tar -czvf change-difficulty-linux-amd64.tar.gz change-difficulty-linux-amd64
+          zip change-difficulty-windows-amd64.zip change-difficulty-windows-amd64.exe
+          zip change-difficulty-windows-arm64.zip change-difficulty-windows-arm64.exe
+          zip change-difficulty-macos-universal.zip change-difficulty-macos-universal
 
       # --- RELEASE ---
       - name: Upload Release Assets
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            dist/change-difficulty-linux-amd64
-            dist/change-difficulty-windows-amd64.exe
-            dist/change-difficulty-windows-arm64.exe
-            dist/change-difficulty-macos-universal
+            dist/*.zip
+            dist/*.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
