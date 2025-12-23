@@ -1,4 +1,4 @@
-A TUI in Golang to modify Trails From Zero Steam save file's difficulty.
+A TUI in Golang to modify Trails From Zero save file's difficulty.
 
 # Build Steps
 
@@ -10,7 +10,8 @@ go build .
 
 # Usage
 
-Run the executable by providing the filepath of your savefile as the sole argument.
+Run the executable by providing the filepath of your savefile as the sole argument. Make sure to back up your save before trying this!
+Note that this only works with NIS's official PC release of Trails from Zero. The Geofront Translation is NOT supported.
 
 
 
