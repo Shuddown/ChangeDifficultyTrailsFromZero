@@ -75,7 +75,10 @@ func (m model) updateChecksum() tea.Msg {
 
 func (m model) compressToFile() tea.Msg {
 	newSaveData := Compress(m.data)
-	os.WriteFile(m.zstdFilepath, newSaveData, 0644)
+	err := os.WriteFile(m.zstdFilepath, newSaveData, 0644)
+	if err != nil {
+		return errMsg{err}
+	}
 	return SUCCESS
 }
 
