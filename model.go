@@ -31,7 +31,7 @@ func initialModel(zstdFilepath string) model {
 }
 
 func (m model) zstdCheck() tea.Msg {
-	if t, err := isZstd(m.zstdFilepath); t == false {
+	if t, err := isZstd(m.zstdFilepath); !t {
 		return errMsg{err}
 	}
 	return nil
@@ -55,27 +55,42 @@ func (m model) decompressFile() tea.Msg {
 }
 
 func (m model) validateSaveFile() tea.Msg {
-	if len(m.data) != SAVE_FILE_SIZE {
-		return errMsg{fmt.Errorf("The savefile's filesize (%d) doesn't match the expected file size (%d)", len(m.data), SAVE_FILE_SIZE)}
+	if len(m.data) != SaveFileSize {
+		return errMsg{fmt.Errorf("the savefile's filesize (%d) doesn't match the expected file size (%d)", len(m.data), SaveFileSize)}
 	}
 	return m.updateDifficulty()
 }
 
 func (m model) updateDifficulty() tea.Msg {
 	difficultyByte := byte(m.selected)
-	m.data[DIFFICULTY_OFFSET] = difficultyByte
+	m.data[DifficultyOffset] = difficultyByte
 	return m.updateChecksum()
 }
 
 func (m model) updateChecksum() tea.Msg {
-	checksum := calculateTrailsFromZeroChecksum(m.data[:len(m.data)-CHECKSUM_SIZE])
-	copy(m.data[len(m.data)-CHECKSUM_SIZE:], checksum)
+	checksum := calculateTrailsFromZeroChecksum(m.data[:len(m.data)-ChecksumSize])
+	copy(m.data[len(m.data)-ChecksumSize:], checksum)
 	return m.compressToFile()
+}
+
+func writeFileSafe(name string, data []byte, perm os.FileMode) error {
+	f, err := os.OpenFile(name, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, perm)
+	if err != nil {
+		return err
+	}
+
+	defer f.Close()
+
+	if _, err = f.Write(data); err != nil {
+		return err
+	}
+
+	return f.Sync()
 }
 
 func (m model) compressToFile() tea.Msg {
 	newSaveData := Compress(m.data)
-	err := os.WriteFile(m.zstdFilepath, newSaveData, 0644)
+	err := writeFileSafe(m.zstdFilepath, newSaveData, 0o644)
 	if err != nil {
 		return errMsg{err}
 	}
@@ -112,7 +127,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m model) View() string {
-
 	if m.err != nil {
 		return fmt.Sprintf("\nError: %v\n\n", m.err)
 	}
@@ -139,11 +153,9 @@ func (m model) View() string {
 
 	s.WriteString("\nPress q to quit.\n")
 	return s.String()
-
 }
 
 func calculateTrailsFromZeroChecksum(data []byte) []byte {
-
 	var sum32Bit uint32 = 0
 	var notSum32Bit uint32 = 0
 
@@ -153,7 +165,7 @@ func calculateTrailsFromZeroChecksum(data []byte) []byte {
 		notSum32Bit += ^num
 	}
 
-	checksum := make([]byte, 0, CHECKSUM_SIZE)
+	checksum := make([]byte, 0, ChecksumSize)
 	checksum = binary.LittleEndian.AppendUint32(checksum, sum32Bit)
 	checksum = binary.LittleEndian.AppendUint32(checksum, notSum32Bit)
 

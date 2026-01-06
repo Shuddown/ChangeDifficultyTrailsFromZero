@@ -17,5 +17,5 @@ func main() {
 	p := tea.NewProgram(initialModel(saveFilePath))
 
 	_, err := p.Run()
-	handle_err(err)
+	handleErr(err)
 }

@@ -4,7 +4,7 @@ import (
 	"log"
 )
 
-func handle_err(err error) {
+func handleErr(err error) {
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -23,9 +23,9 @@ type errMsg struct{ err error }
 func (e errMsg) Error() string { return e.err.Error() }
 
 const (
-	CHECKSUM_SIZE     = 8
-	SAVE_FILE_SIZE    = 155624
-	DIFFICULTY_OFFSET = 0x0001EF91
+	ChecksumSize     = 8
+	SaveFileSize     = 155624
+	DifficultyOffset = 0x0001EF91
 )
 
 type Difficulty byte
